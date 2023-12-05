@@ -14,47 +14,113 @@ class AddObjectScreen extends StatefulWidget {
 }
 
 class _AddObjectScreenState extends State<AddObjectScreen> {
+  // Переменные для полей TextField
   String? name;
   String? description;
+  // Submit для добавления элементов в ObjectModel
+  void _submit(ObjectModel objectModel, BuildContext context) {
+    if (!_formKey.currentState!.validate()) {
+      return;
+    }
+    _formKey.currentState!.save();
+    Navigator.of(context).pop();
+  }
+
+  // Ключ для Form
+  final _formKey = GlobalKey<FormState>();
+  // FocusNode для перехода от поля ввода name к полю ввода description
+  late final FocusNode _descriptionFocusNode;
+
+  @override
+  void initState() {
+    _descriptionFocusNode = FocusNode();
+    super.initState();
+  }
+
+  @override
+  void dispose() {
+    _descriptionFocusNode.dispose();
+    super.dispose();
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         centerTitle: true,
-        title: Text("Добавить объект"),
+        title: const Text("Добавить объект"),
       ),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(20.0),
-          child: Column(
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                height: MediaQuery.of(context).size.height / 3,
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(50),
-                  image: DecorationImage(
-                    image: FileImage(widget.image),
-                    fit: BoxFit.cover,
+      body: Form(
+        key: _formKey,
+        child: SingleChildScrollView(
+          child: Padding(
+            padding: const EdgeInsets.all(20.0),
+            child: Column(
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  height: MediaQuery.of(context).size.height / 3,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(50),
+                    image: DecorationImage(
+                      image: FileImage(widget.image),
+                      fit: BoxFit.cover,
+                    ),
                   ),
                 ),
-              ),
-              const Padding(
-                padding: EdgeInsets.all(10.0),
-                child: Text('Координаты объекта: '),
-              ),
-              Text('Ширина: ${widget.latLng.latitude}'),
-              Text('Долгота: ${widget.latLng.longitude}'),
-              TextField(onChanged: (value) {
-                name = value;
-              }),
-              TextField(onChanged: (value) {
-                description = value;
-              }),
-              // ElevatedButton(
-              //     onPressed: () => Navigator.of(context).pop(),
-              //     child: const Text('Pop!'))
-            ],
+                const Padding(
+                  padding: EdgeInsets.all(10.0),
+                  child: Text('Координаты объекта: '),
+                ),
+                Text('Ширина: ${widget.latLng.latitude}'),
+                Text('Долгота: ${widget.latLng.longitude}'),
+                // Text Field
+                TextFormField(
+                  decoration: const InputDecoration(
+                      hintText: 'Введите наименование объекта'),
+                  textInputAction: TextInputAction.next,
+                  onSaved: (value) => {
+                    name = value!.trim(),
+                  },
+                  onFieldSubmitted: (_) {
+                    // Для перехода на следующее поле description
+                    FocusScope.of(context).requestFocus(_descriptionFocusNode);
+                  },
+                  // Валидатор, делаем проверку, в конце возвращаем null -> Значит проверка пройдена
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Введите значение!';
+                    }
+                    return null;
+                  },
+                ),
+                TextFormField(
+                  focusNode: _descriptionFocusNode,
+                  decoration:
+                      const InputDecoration(hintText: 'Введите описание'),
+                  textInputAction: TextInputAction.done,
+                  onFieldSubmitted: (_) {
+                    final ObjectModel objectModel = ObjectModel(
+                        image: widget.image,
+                        longitude: widget.latLng.longitude,
+                        latitude: widget.latLng.latitude,
+                        objectDescription: description,
+                        objectName: name);
+
+                    _submit(objectModel, context);
+                  },
+                  onSaved: (value) => {
+                    description = value!.trim(),
+                  },
+                  validator: (value) {
+                    if (value!.isEmpty) {
+                      return 'Введите описание!';
+                    }
+                    return null;
+                  },
+                ),
+              ],
+            ),
           ),
         ),
       ),
@@ -62,18 +128,15 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
         onPressed: () {
           // Сохраняем объекты после создания и показываем на карте
 
-          // if (description != null && name != null) {
-          // if description != "" && name != ""}
-
           final ObjectModel objectModel = ObjectModel(
               image: widget.image,
               longitude: widget.latLng.longitude,
               latitude: widget.latLng.latitude,
-              objectDescription: description ?? 'Empty',
-              objectName: name ?? 'Empty');
+              objectDescription: description,
+              objectName: name);
 
           // Pop экрана после нажатия на кнопку
-          Navigator.of(context).pop();
+          _submit(objectModel, context);
         },
         child: const Icon(Icons.check, size: 30),
       ),
