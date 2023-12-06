@@ -1,5 +1,7 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import 'package:flutter_map_test/bloc/object_post_cubit.dart';
 import 'package:flutter_map_test/models/object_post_model.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -23,6 +25,9 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
       return;
     }
     _formKey.currentState!.save();
+
+    context.read<ObjectPostCubit>().addObjectPost(objectModel);
+
     Navigator.of(context).pop();
   }
 

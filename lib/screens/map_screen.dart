@@ -4,6 +4,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_test/bloc/location_cubit.dart';
+import 'package:flutter_map_test/bloc/object_post_cubit.dart';
+import 'package:flutter_map_test/models/object_post_model.dart';
 import 'package:flutter_map_test/screens/screens.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
@@ -35,6 +37,23 @@ class MapScreen extends StatelessWidget {
     }
   }
 
+  // Функция для возвращения листа маркеров
+  List<Marker> _buildMarkers(
+      BuildContext context, List<ObjectModel> objectPosts) {
+    List<Marker> markers = [];
+    objectPosts.forEach((post) {
+      markers.add(Marker(
+          width: 55,
+          height: 55,
+          point: LatLng(post.latitude, post.longitude),
+          child: Container(
+            // add pin image
+            color: Colors.blueAccent,
+          )));
+    });
+    return markers;
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -53,32 +72,36 @@ class MapScreen extends StatelessWidget {
             ));
           }
         },
-        child: FlutterMap(
-          mapController: _mapController,
-          options: MapOptions(
-            onLongPress: (tapPosition, latLng) {
-              // При нажатии нам дается latlng и мы его передаем в AddObjectScreen
+        child: BlocBuilder<ObjectPostCubit, ObjectPostState>(
+          buildWhen: (prevState, currentState) =>
+              (prevState.status != currentState.status),
+          builder: (context, objectPostState) {
+            return FlutterMap(
+              mapController: _mapController,
+              options: MapOptions(
+                onLongPress: (tapPosition, latLng) {
+                  // При нажатии нам дается latlng и мы его передаем в AddObjectScreen
 
-              _pickImageAndCreatePost(latLng: latLng, context: context);
-
-              // Navigator.of(context).push(
-              //   MaterialPageRoute(
-              //       builder: (context) => AddObjectScreen(latLng: latLng)),
-              // );
-            },
-            initialCenter: LatLng(59.9311, 30.3609),
-            initialZoom: 15.3,
-            maxZoom: 17,
-            minZoom: 3.5,
-          ),
-          children: [
-            TileLayer(
-              urlTemplate:
-                  'https://tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=655424ea6ac64f1787f12fce7eb7ad8d',
-              retinaMode: true,
-            ),
-            /////////Место под объеккты
-          ],
+                  _pickImageAndCreatePost(latLng: latLng, context: context);
+                },
+                initialCenter: LatLng(59.9311, 30.3609),
+                initialZoom: 15.3,
+                maxZoom: 17,
+                minZoom: 3.5,
+              ),
+              children: [
+                TileLayer(
+                  urlTemplate:
+                      'https://tile.thunderforest.com/atlas/{z}/{x}/{y}.png?apikey=655424ea6ac64f1787f12fce7eb7ad8d',
+                  retinaMode: true,
+                ),
+                /////////Место под объеккты
+                MarkerLayer(
+                  markers: _buildMarkers(context, objectPostState.objectPosts),
+                ),
+              ],
+            );
+          },
         ),
       ),
     );
