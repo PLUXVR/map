@@ -17,4 +17,14 @@ class ObjectPostCubit extends Cubit<ObjectPostState> {
     emit(state.copyWith(
         objectPosts: objectPosts, status: ObjectPostStatus.loaded));
   }
+
+  void removeObjectPost(ObjectModel objectModel) {
+    emit(state.copyWith(status: ObjectPostStatus.loading));
+    // Удаление
+    List<ObjectModel> objectPosts = state.objectPosts;
+    objectPosts.removeWhere((element) => element == objectModel);
+
+    emit(state.copyWith(
+        objectPosts: objectPosts, status: ObjectPostStatus.loaded));
+  }
 }

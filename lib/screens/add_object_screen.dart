@@ -20,11 +20,21 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
   String? name;
   String? description;
   // Submit для добавления элементов в ObjectModel
-  void _submit(ObjectModel objectModel, BuildContext context) {
+  void _submit(BuildContext context) {
     if (!_formKey.currentState!.validate()) {
       return;
     }
     _formKey.currentState!.save();
+
+    // Создаем ObjectModel после того как проверили onSaved в полях, чтобы не передавался null
+    // Делаем submit, заполняются name и description
+    // и  после _formKey.currentState!.save(); создаем objectModel
+    final ObjectModel objectModel = ObjectModel(
+        image: widget.image,
+        longitude: widget.latLng.longitude,
+        latitude: widget.latLng.latitude,
+        objectDescription: description,
+        objectName: name);
 
     context.read<ObjectPostCubit>().addObjectPost(objectModel);
 
@@ -62,6 +72,7 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
             padding: const EdgeInsets.all(20.0),
             child: Column(
               children: [
+                // Картинка из галереи
                 Container(
                   width: MediaQuery.of(context).size.width,
                   height: MediaQuery.of(context).size.height / 3,
@@ -105,14 +116,7 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
                       const InputDecoration(hintText: 'Введите описание'),
                   textInputAction: TextInputAction.done,
                   onFieldSubmitted: (_) {
-                    final ObjectModel objectModel = ObjectModel(
-                        image: widget.image,
-                        longitude: widget.latLng.longitude,
-                        latitude: widget.latLng.latitude,
-                        objectDescription: description,
-                        objectName: name);
-
-                    _submit(objectModel, context);
+                    _submit(context);
                   },
                   onSaved: (value) => {
                     description = value!.trim(),
@@ -131,17 +135,8 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
       ),
       floatingActionButton: FloatingActionButton(
         onPressed: () {
-          // Сохраняем объекты после создания и показываем на карте
-
-          final ObjectModel objectModel = ObjectModel(
-              image: widget.image,
-              longitude: widget.latLng.longitude,
-              latitude: widget.latLng.latitude,
-              objectDescription: description,
-              objectName: name);
-
           // Pop экрана после нажатия на кнопку
-          _submit(objectModel, context);
+          _submit(context);
         },
         child: const Icon(Icons.check, size: 30),
       ),

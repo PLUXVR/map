@@ -46,9 +46,21 @@ class MapScreen extends StatelessWidget {
           width: 55,
           height: 55,
           point: LatLng(post.latitude, post.longitude),
-          child: Container(
-            // add pin image
-            color: Colors.blueAccent,
+          // Разобраться что это такое
+          child: GestureDetector(
+            onTap: () {
+              // Go to details screen
+              Navigator.of(context).push(
+                MaterialPageRoute(
+                  builder: (context) => ObjectPostInfoScreen(
+                    objectModel: post,
+                  ),
+                ),
+              );
+            },
+            child: Container(
+              child: Image.asset('assets/bpla.png'),
+            ),
           )));
     });
     return markers;
