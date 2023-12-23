@@ -13,6 +13,7 @@ class LocationCubit extends Cubit<LocationState> {
 
     if (permission != LocationPermission.denied ||
         permission != LocationPermission.deniedForever) {
+      permission = await Geolocator.requestPermission();
       emit(LocationLoading());
 
       try {
