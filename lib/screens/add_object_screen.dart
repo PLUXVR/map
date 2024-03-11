@@ -137,6 +137,7 @@ class _AddObjectScreenState extends State<AddObjectScreen> {
         onPressed: () {
           // Pop экрана после нажатия на кнопку
           _submit(context);
+          print('Нажата кнопка добавления');
         },
         child: const Icon(Icons.check, size: 30),
       ),

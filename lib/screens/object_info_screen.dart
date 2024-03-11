@@ -29,21 +29,21 @@ class ObjectPostInfoScreen extends StatelessWidget {
               ),
             ),
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           Text(
             objectModel.objectName!,
             style: Theme.of(context).textTheme.headlineLarge,
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           Text(
             objectModel.objectDescription!,
             style: Theme.of(context).textTheme.headlineMedium,
           ),
-          SizedBox(
+          const SizedBox(
             height: 15,
           ),
           TextButton(

@@ -5,6 +5,7 @@ import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_test/bloc/location_cubit.dart';
 import 'package:flutter_map_test/bloc/object_post_cubit.dart';
+import 'package:flutter_map_test/models/geolocation_mark.dart';
 import 'package:flutter_map_test/models/object_post_model.dart';
 import 'package:flutter_map_test/screens/screens.dart';
 import 'package:image_picker/image_picker.dart';
@@ -14,6 +15,11 @@ class MapScreen extends StatelessWidget {
   MapScreen({super.key});
 
   final MapController _mapController = MapController();
+  GeolocationMark currentGeolocationMark =
+      GeolocationMark(latitude: 0, longitude: 0);
+
+  // TODO Сделать механизм для создания маркера текущей геопозиции
+  Marker? currentPos;
 
   Future<void> _pickImageAndCreatePost(
       {required LatLng latLng, required BuildContext context}) async {
@@ -49,7 +55,7 @@ class MapScreen extends StatelessWidget {
           // Разобраться что это такое
           child: GestureDetector(
             onTap: () {
-              // Go to details screen
+              // При нажатии на элемент выдается информация о нем
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ObjectPostInfoScreen(
@@ -71,9 +77,23 @@ class MapScreen extends StatelessWidget {
     return Scaffold(
       body: BlocListener<LocationCubit, LocationState>(
         listener: (previousState, currentState) {
+          // Если местоположение определено, переносимся в эту точку и ставим марку
           if (currentState is LocationLoaded) {
             _mapController.move(
                 LatLng(currentState.latitude, currentState.longitude), 14);
+
+            // TODO Сделать механизм для создания маркера текущей геопозиции
+            currentGeolocationMark = GeolocationMark(
+                latitude: currentState.latitude,
+                longitude: currentState.longitude);
+
+            currentPos = Marker(
+              point: LatLng(
+                currentGeolocationMark.latitude,
+                currentState.longitude,
+              ),
+              child: Image.asset('assets/icons/current_pos.png'),
+            );
           }
 
           if (currentState is LocationError) {
