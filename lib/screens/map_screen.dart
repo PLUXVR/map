@@ -1,14 +1,14 @@
 import 'dart:io';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:flutter/widgets.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
 import 'package:flutter_map_test/bloc/location_cubit.dart';
 import 'package:flutter_map_test/bloc/object_post_cubit.dart';
+import 'package:flutter_map_test/models/geolocation_mark.dart';
 import 'package:flutter_map_test/models/object_post_model.dart';
 import 'package:flutter_map_test/screens/screens.dart';
+import 'package:flutter_map_test/widgets/circle_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -16,6 +16,11 @@ class MapScreen extends StatelessWidget {
   MapScreen({super.key});
 
   final MapController _mapController = MapController();
+  GeolocationMark currentGeolocationMark =
+      GeolocationMark(latitude: 0, longitude: 0);
+
+  // TODO Сделать механизм для создания маркера текущей геопозиции
+  Marker? currentPos;
 
   Future<void> _pickImageAndCreatePost(
       {required LatLng latLng, required BuildContext context}) async {
@@ -51,7 +56,7 @@ class MapScreen extends StatelessWidget {
           // Разобраться что это такое
           child: GestureDetector(
             onTap: () {
-              // Go to details screen
+              // При нажатии на элемент выдается информация о нем
               Navigator.of(context).push(
                 MaterialPageRoute(
                   builder: (context) => ObjectPostInfoScreen(
@@ -73,9 +78,23 @@ class MapScreen extends StatelessWidget {
     return Scaffold(
       body: BlocListener<LocationCubit, LocationState>(
         listener: (previousState, currentState) {
+          // Если местоположение определено, переносимся в эту точку и ставим марку
           if (currentState is LocationLoaded) {
             _mapController.move(
                 LatLng(currentState.latitude, currentState.longitude), 14);
+
+            // // TODO Сделать механизм для создания маркера текущей геопозиции
+            // currentGeolocationMark = GeolocationMark(
+            //     latitude: currentState.latitude,
+            //     longitude: currentState.longitude);
+
+            // currentPos = Marker(
+            //   point: LatLng(
+            //     currentGeolocationMark.latitude,
+            //     currentState.longitude,
+            //   ),
+            //   child: Image.asset('assets/icons/current_pos.png'),
+            // );
           }
 
           if (currentState is LocationError) {
@@ -98,7 +117,7 @@ class MapScreen extends StatelessWidget {
 
                   _pickImageAndCreatePost(latLng: latLng, context: context);
                 },
-                initialCenter: LatLng(59.9311, 30.3609),
+                initialCenter: const LatLng(59.9311, 30.3609),
                 initialZoom: 15.3,
                 maxZoom: 17,
                 minZoom: 3.5,
@@ -113,38 +132,71 @@ class MapScreen extends StatelessWidget {
                 MarkerLayer(
                   markers: _buildMarkers(context, objectPostState.objectPosts),
                 ),
-
-                Stack(children: [
-                  Column(mainAxisAlignment: MainAxisAlignment.start, children: [
-                    SizedBox(
-                      height: 50,
-                    ),
-                    FloatingActionButton(
-                      onPressed: () {
-                        // if (MediaQuery.of(context).orientation ==
-                        //     Orientation.portrait) {
-                        //   SystemChrome.setPreferredOrientations(
-                        //       [DeviceOrientation.landscapeLeft]);
-                        // } else {
-                        //   SystemChrome.setPreferredOrientations(
-                        //       [DeviceOrientation.portraitUp]);
-                        // }
-                      },
-                      tooltip: 'decrement',
-                      child: const Icon(Icons.remove),
-                      heroTag: null,
-                    ),
-                    SizedBox(
-                      height: 20,
-                    ),
-                    FloatingActionButton(
-                      onPressed: () {},
-                      tooltip: 'Increment',
-                      child: const Icon(Icons.add),
-                      heroTag: null,
-                    ),
-                  ])
-                ])
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Stack(children: [
+                      Padding(
+                        padding: const EdgeInsets.only(left: 8.0),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_close.svg",
+                              ),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_leading_icon.svg",
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_save.svg",
+                              ),
+                            ]),
+                      )
+                    ]),
+                    Stack(children: [
+                      Padding(
+                        padding: const EdgeInsets.only(right: 8.0),
+                        child: Column(
+                            mainAxisAlignment: MainAxisAlignment.start,
+                            children: [
+                              const SizedBox(
+                                height: 50,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_search_gray_200.svg",
+                              ),
+                              const SizedBox(
+                                height: 30,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_coordinate.svg",
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_plus.svg",
+                              ),
+                              const SizedBox(
+                                height: 10,
+                              ),
+                              CircleButton(
+                                icon: "assets/icons/img_minus.svg",
+                              ),
+                            ]),
+                      )
+                    ]),
+                  ],
+                )
               ],
             );
           },
