@@ -9,6 +9,7 @@ import 'package:flutter_map_test/models/geolocation_mark.dart';
 import 'package:flutter_map_test/models/object_post_model.dart';
 import 'package:flutter_map_test/screens/screens.dart';
 import 'package:flutter_map_test/widgets/circle_button.dart';
+import 'package:flutter_map_test/widgets/square_button.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:latlong2/latlong.dart';
 
@@ -171,26 +172,33 @@ class MapScreen extends StatelessWidget {
                               const SizedBox(
                                 height: 50,
                               ),
-                              CircleButton(
+                              SquareButton(
                                 icon: "assets/icons/img_search_gray_200.svg",
                               ),
                               const SizedBox(
                                 height: 30,
                               ),
-                              CircleButton(
+                              SquareButton(
                                 icon: "assets/icons/img_coordinate.svg",
                               ),
                               const SizedBox(
                                 height: 10,
                               ),
-                              CircleButton(
+                              SquareButton(
                                 icon: "assets/icons/img_plus.svg",
                               ),
                               const SizedBox(
                                 height: 10,
                               ),
-                              CircleButton(
-                                icon: "assets/icons/img_minus.svg",
+                              Row(
+                                children: [
+                                  SquareButton(
+                                    icon: "assets/icons/img_coordinate.svg",
+                                  ),
+                                  SquareButton(
+                                    icon: "assets/icons/img_minus.svg",
+                                  ),
+                                ],
                               ),
                             ]),
                       )
